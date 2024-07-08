@@ -14,13 +14,13 @@ datasource db {
 }
 
 model Category {
-  id    String        @id @default(uuid())
+  id    String        @id @default(cuid())
   name  String        @unique
   items LibraryItem[]
 }
 
 model LibraryItem {
-  id             String          @id @default(uuid())
+  id             String          @id @default(cuid())
   title          String
   author         String?
   nbrPages       Int?
