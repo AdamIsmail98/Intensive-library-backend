@@ -22,15 +22,16 @@ model Category {
 model LibraryItem {
   id             String          @id @default(cuid())
   title          String
-  author         String?
-  nbrPages       Int?
-  runTimeMinutes Int?
   type           LibraryItemType
   isBorrowable   Boolean
   categoryId     String
   category       Category        @relation(fields: [categoryId], references: [id])
   borrower       String?
   borrowDate     DateTime?
+  author         String?
+  creator        String?
+  nbrPages       Int?
+  runTimeMinutes Int?
 }
 
 enum LibraryItemType {
