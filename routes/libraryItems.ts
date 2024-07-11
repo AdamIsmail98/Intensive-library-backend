@@ -35,53 +35,23 @@ router.post("/", async (req, res) => {
 
   if (!category) return res.status(404).send("Category not found");
 
-  if (req.body.type === "Book") {
-    const libraryItem = await prisma.libraryItem.create({
-      data: {
-        title: req.body.title,
-        author: req.body.author,
-        nbrPages: req.body.nbrPages,
-        type: req.body.type,
-        categoryId: req.body.categoryId,
-        isBorrowable: req.body.isBorrowable,
-      },
-      include: { category: true },
-    });
-    return res.status(201).send(libraryItem);
-  }
+  const libraryItem = await prisma.libraryItem.create({
+    data: {
+      title: req.body.title,
+      type: req.body.type,
+      categoryId: req.body.categoryId,
+      isBorrowable: req.body.isBorrowable,
+      author: req.body.author || null,
+      creator: req.body.creator || null,
+      nbrPages: req.body.nbrPages || null,
+      runTimeMinutes: req.body.runTimeMinutes || null,
+      borrower: null,
+      borrowDate: null,
+    },
+    include: { category: true },
+  });
 
-  if (req.body.type === "Encyclopedia") {
-    const updatedLibraryItem = await prisma.libraryItem.create({
-      data: {
-        title: req.body.title,
-        author: req.body.author,
-        nbrPages: req.body.nbrPages,
-        type: req.body.type,
-        categoryId: req.body.categoryId,
-        isBorrowable: false,
-        borrower: null,
-        borrowDate: null,
-      },
-      include: { category: true },
-    });
-    return res.send(updatedLibraryItem);
-  }
-
-  if (req.body.type === "DVD" || req.body.type === "Audiobook") {
-    const libraryItem = await prisma.libraryItem.create({
-      data: {
-        title: req.body.title,
-        creator: req.body.creator,
-        runTimeMinutes: req.body.runTimeMinutes,
-        type: req.body.type,
-        categoryId: req.body.categoryId,
-        isBorrowable: req.body.isBorrowable,
-      },
-      include: { category: true },
-    });
-
-    return res.status(201).send(libraryItem);
-  }
+  return res.status(201).send(libraryItem);
 });
 
 router.put("/:id", async (req, res) => {
@@ -102,65 +72,49 @@ router.put("/:id", async (req, res) => {
 
   if (!category) return res.status(404).send("Category not found");
 
-  if (req.body.type === "Book") {
+  if (req.body.isBorrowable && req.body.borrower) {
     const updatedLibraryItem = await prisma.libraryItem.update({
       where: {
         id: req.params.id,
       },
       data: {
         title: req.body.title,
-        creator: null,
-        author: req.body.author,
-        nbrPages: req.body.nbrPages,
-        type: req.body.type,
-        categoryId: req.body.categoryId,
-        isBorrowable: req.body.isBorrowable,
-      },
-      include: { category: true },
-    });
-    return res.send(updatedLibraryItem);
-  }
-
-  if (req.body.type === "Encyclopedia") {
-    const updatedLibraryItem = await prisma.libraryItem.update({
-      where: {
-        id: req.params.id,
-      },
-      data: {
-        title: req.body.title,
-        creator: null,
-        author: req.body.author,
-        nbrPages: req.body.nbrPages,
+        author: req.body.author || null,
+        creator: req.body.creator || null,
+        nbrPages: req.body.nbrPages || null,
+        runTimeMinutes: req.body.runTimeMinutes || null,
         type: req.body.type,
         categoryId: req.body.categoryId,
         isBorrowable: false,
-        borrower: null,
-        borrowDate: null,
-      },
-      include: { category: true },
-    });
-    return res.send(updatedLibraryItem);
-  }
-
-  if (req.body.type === "DVD" || req.body.type === "Audiobook") {
-    const updatedLibraryItem = await prisma.libraryItem.update({
-      where: {
-        id: req.params.id,
-      },
-      data: {
-        title: req.body.title,
-        author: null,
-        creator: req.body.creator,
-        runTimeMinutes: req.body.runTimeMinutes,
-        type: req.body.type,
-        categoryId: req.body.categoryId,
-        isBorrowable: req.body.isBorrowable,
+        borrower: req.body.borrower,
+        borrowDate: req.body.borrowDate,
       },
       include: { category: true },
     });
 
     return res.send(updatedLibraryItem);
   }
+
+  const updatedLibraryItem = await prisma.libraryItem.update({
+    where: {
+      id: req.params.id,
+    },
+    data: {
+      title: req.body.title,
+      author: req.body.author || null,
+      creator: req.body.creator || null,
+      nbrPages: req.body.nbrPages || null,
+      runTimeMinutes: req.body.runTimeMinutes || null,
+      type: req.body.type,
+      categoryId: req.body.categoryId,
+      isBorrowable: req.body.isBorrowable,
+      borrower: null,
+      borrowDate: null,
+    },
+    include: { category: true },
+  });
+
+  return res.send(updatedLibraryItem);
 });
 
 router.delete("/:id", async (req, res) => {
